@@ -1,0 +1,20 @@
+### Index
+GET http://localhost:8000/products
+Accept: application/json
+
+
+### Create
+POST http://localhost:8000/products
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "Vafliai",
+  "brand": "Vafelki",
+  "description": "Chocolate",
+  "amount": "80",
+  "measurementUnit": "g",
+  "protein": "10",
+  "carbs": "56",
+  "fat": "13"
+}
