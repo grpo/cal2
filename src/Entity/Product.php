@@ -27,35 +27,35 @@ class Product
     #[Assert\NotBlank]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'decimal', length: 2, precision: 1)]
+    #[ORM\Column(type: 'decimal', length: 3, precision: 1)]
     #[Assert\NotBlank]
     #[Assert\LessThan(100)]
     #[Assert\PositiveOrZero]
     #[Type('float')]
     private ?float $protein = null;
 
-    #[ORM\Column(type: 'decimal', length: 2, precision: 1)]
+    #[ORM\Column(type: 'decimal', length: 3, precision: 1)]
     #[Assert\NotBlank]
     #[Assert\LessThan(100)]
     #[Assert\PositiveOrZero]
     #[Type('float')]
     private ?float $carbs = null;
 
-    #[ORM\Column(type: 'decimal', length: 2, precision: 1)]
+    #[ORM\Column(type: 'decimal', length: 3, precision: 1)]
     #[Assert\NotBlank]
     #[Assert\LessThan(100)]
     #[Assert\PositiveOrZero]
     #[Type('float')]
     private ?float $fat = null;
 
-    #[ORM\Column(type: 'decimal', length: 2, precision: 1)]
+    #[ORM\Column(type: 'decimal', length: 3, precision: 1)]
     #[Assert\NotBlank]
     #[Assert\LessThan(100)]
     #[Assert\PositiveOrZero]
     #[Type('float')]
     private ?float $sugar = null;
 
-    #[ORM\Column(type: 'decimal', length: 2, precision: 1)]
+    #[ORM\Column(type: 'decimal', length: 5, precision: 1)]
     #[Assert\NotBlank]
     #[Assert\GreaterThan(0)]
     #[Type('integer')]
