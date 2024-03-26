@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\RecipeProducts;
+use App\Entity\RecipeProduct;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<RecipeProducts>
+ * @extends ServiceEntityRepository<RecipeProduct>
  *
- * @method RecipeProducts|null find($id, $lockMode = null, $lockVersion = null)
- * @method RecipeProducts|null findOneBy(array $criteria, array $orderBy = null)
- * @method RecipeProducts[]    findAll()
- * @method RecipeProducts[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method RecipeProduct|null find($id, $lockMode = null, $lockVersion = null)
+ * @method RecipeProduct|null findOneBy(array $criteria, array $orderBy = null)
+ * @method RecipeProduct[]    findAll()
+ * @method RecipeProduct[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class RecipeProductsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, RecipeProducts::class);
+        parent::__construct($registry, RecipeProduct::class);
     }
 }
