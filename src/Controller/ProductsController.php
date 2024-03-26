@@ -6,9 +6,6 @@ use App\Entity\Product;
 use App\Service\EntityUpdaterService;
 use App\Service\JsonValidator;
 use App\Service\ValidatorViolationAggregator;
-use Doctrine\ORM\EntityManagerInterface;
-use JMS\Serializer\SerializerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,23 +13,16 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/products', name: 'app_products_')]
-class ProductsController extends AbstractController
+class ProductsController extends AbstractApiController
 {
-    public function __construct(
-        private SerializerInterface $serializer,
-    ) {
-    }
-
     #[Route('', name: 'index', methods: ['GET'])]
-    public function index(
-        EntityManagerInterface $entityManager,
-        SerializerInterface $serializer,
-    ): JsonResponse {
-        $products = $entityManager->getRepository(Product::class)->findAll();
+    public function index(): JsonResponse
+    {
+        $products = $this->entityManager->getRepository(Product::class)->findAll();
         if (!$products) {
             return $this->json([]);
         }
-        $payload = json_decode($serializer->serialize($products, 'json'));
+        $payload = json_decode($this->serializer->serialize($products, 'json'));
 
         return new JsonResponse($payload);
     }
@@ -40,14 +30,12 @@ class ProductsController extends AbstractController
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(
         string $id,
-        EntityManagerInterface $entityManager,
-        SerializerInterface $serializer,
     ): JsonResponse {
-        $product = $entityManager->getRepository(Product::class)->find($id);
+        $product = $this->entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
             return $this->json([]);
         }
-        $payload = json_decode($serializer->serialize($product, 'json'));
+        $payload = json_decode($this->serializer->serialize($product, 'json'));
 
         return new JsonResponse($payload);
     }
@@ -56,12 +44,11 @@ class ProductsController extends AbstractController
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(
         Request $request,
-        EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         ValidatorViolationAggregator $validatorViolationAggregator,
         JsonValidator $jsonValidator
     ): JsonResponse {
-        $requestContent = $jsonValidator->validate($request->getContent());
+        $requestContent = $this->jsonValidator->validate($request->getContent());
         $product = $this->serializer->deserialize($requestContent, Product::class, 'json');
 
         $errors = $validator->validate($product);
@@ -69,8 +56,8 @@ class ProductsController extends AbstractController
             return new JsonResponse($validatorViolationAggregator->getViolations($errors), Response::HTTP_BAD_REQUEST);
         }
 
-        $entityManager->persist($product);
-        $entityManager->flush();
+        $this->entityManager->persist($product);
+        $this->entityManager->flush();
 
         $productPayload = json_decode($this->serializer->serialize($product, 'json'));
 
@@ -80,14 +67,13 @@ class ProductsController extends AbstractController
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(
         string $id,
-        EntityManagerInterface $entityManager,
     ): JsonResponse {
-        $product = $entityManager->getRepository(Product::class)->find($id);
+        $product = $this->entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
             return new JsonResponse('', Response::HTTP_BAD_REQUEST);
         }
-        $entityManager->remove($product);
-        $entityManager->flush();
+        $this->entityManager->remove($product);
+        $this->entityManager->flush();
 
         return new JsonResponse();
     }
@@ -96,14 +82,13 @@ class ProductsController extends AbstractController
     public function edit(
         string $id,
         Request $request,
-        EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         EntityUpdaterService $entityUpdaterService,
         ValidatorViolationAggregator $validatorViolationAggregator,
         JsonValidator $jsonValidator
     ): JsonResponse {
         $requestContent = $jsonValidator->validate($request->getContent());
-        $product = $entityManager->getRepository(Product::class)->find($id);
+        $product = $this->entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
             return new JsonResponse('', Response::HTTP_BAD_REQUEST);
         }
@@ -115,8 +100,8 @@ class ProductsController extends AbstractController
             return new JsonResponse($validatorViolationAggregator->getViolations($errors), Response::HTTP_BAD_REQUEST);
         }
 
-        $entityManager->persist($updatedProduct);
-        $entityManager->flush();
+        $this->entityManager->persist($updatedProduct);
+        $this->entityManager->flush();
 
         $payload = json_decode($this->serializer->serialize($updatedProduct, 'json'));
 
