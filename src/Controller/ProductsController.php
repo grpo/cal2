@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Service\EntityUpdaterService;
-use App\Service\JsonValidator;
 use App\Service\ValidatorViolationAggregator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,10 +45,9 @@ class ProductsController extends AbstractApiController
         Request $request,
         ValidatorInterface $validator,
         ValidatorViolationAggregator $validatorViolationAggregator,
-        JsonValidator $jsonValidator
     ): JsonResponse {
-        $requestContent = $this->jsonValidator->validate($request->getContent());
-        $product = $this->serializer->deserialize($requestContent, Product::class, 'json');
+        $validJson = $this->jsonValidator->validate($request->getContent());
+        $product = $this->serializer->deserialize($validJson, Product::class, 'json');
 
         $errors = $validator->validate($product);
         if (count($errors) > 0) {
@@ -85,14 +83,13 @@ class ProductsController extends AbstractApiController
         ValidatorInterface $validator,
         EntityUpdaterService $entityUpdaterService,
         ValidatorViolationAggregator $validatorViolationAggregator,
-        JsonValidator $jsonValidator
     ): JsonResponse {
-        $requestContent = $jsonValidator->validate($request->getContent());
+        $validJson = $this->jsonValidator->validate($request->getContent());
         $product = $this->entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
             return new JsonResponse('', Response::HTTP_BAD_REQUEST);
         }
-        $requestProduct = $this->serializer->deserialize($requestContent, Product::class, 'json');
+        $requestProduct = $this->serializer->deserialize($validJson, Product::class, 'json');
         $updatedProduct = $entityUpdaterService->update($product, $requestProduct);
 
         $errors = $validator->validate($updatedProduct);

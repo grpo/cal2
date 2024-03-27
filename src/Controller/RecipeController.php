@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Recipe;
 use App\Service\EntityUpdaterService;
-use App\Service\JsonValidator;
 use App\Service\ValidatorViolationAggregator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,11 +44,10 @@ class RecipeController extends AbstractApiController
     public function create(
         ValidatorViolationAggregator $validatorViolationAggregator,
         ValidatorInterface $validator,
-        JsonValidator $jsonValidator,
         Request $request
     ): JsonResponse {
-        $requestContent = $jsonValidator->validate($request->getContent());
-        $recipe = $this->serializer->deserialize($requestContent, Recipe::class, 'json');
+        $validJson = $this->jsonValidator->validate($request->getContent());
+        $recipe = $this->serializer->deserialize($validJson, Recipe::class, 'json');
         $errors = $validator->validate($recipe);
         if (count($errors) > 0) {
             return new JsonResponse($validatorViolationAggregator->getViolations($errors), Response::HTTP_BAD_REQUEST);
@@ -67,15 +65,14 @@ class RecipeController extends AbstractApiController
         Request $request,
         ValidatorViolationAggregator $validatorViolationAggregator,
         ValidatorInterface $validator,
-        JsonValidator $jsonValidator,
         EntityUpdaterService $entityUpdaterService,
     ): JsonResponse {
-        $requestContent = $jsonValidator->validate($request->getContent());
+        $validJson = $this->jsonValidator->validate($request->getContent());
         $recipe = $this->entityManager->getRepository(Recipe::class)->find($id);
         if (!$recipe) {
             return new JsonResponse('', Response::HTTP_NOT_FOUND);
         }
-        $updatedRecipe = $this->serializer->deserialize($requestContent, Recipe::class, 'json');
+        $updatedRecipe = $this->serializer->deserialize($validJson, Recipe::class, 'json');
         $updatedRecipe = $entityUpdaterService->update($recipe, $updatedRecipe);
 
         $errors = $validator->validate($updatedRecipe);
