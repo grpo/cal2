@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\RecipeProduct;
 use App\Service\EntityUpdaterService;
-use App\Service\JsonValidator;
 use App\Service\ValidatorViolationAggregator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,10 +44,9 @@ class RecipeProductsController extends AbstractApiController
     public function create(
         ValidatorViolationAggregator $validatorViolationAggregator,
         ValidatorInterface $validator,
-        JsonValidator $jsonValidator,
         Request $request
     ): JsonResponse {
-        $validJson = $jsonValidator->validate($request->getContent());
+        $validJson = $this->jsonValidator->validate($request->getContent());
         $recipeProduct = $this->serializer->deserialize($validJson, RecipeProduct::class, 'json');
         $errors = $validator->validate($recipeProduct);
         if (count($errors) > 0) {
@@ -67,15 +65,14 @@ class RecipeProductsController extends AbstractApiController
         Request $request,
         ValidatorViolationAggregator $validatorViolationAggregator,
         ValidatorInterface $validator,
-        JsonValidator $jsonValidator,
         EntityUpdaterService $entityUpdaterService,
     ): JsonResponse {
-        $requestContent = $jsonValidator->validate($request->getContent());
+        $validJson = $this->jsonValidator->validate($request->getContent());
         $recipeProduct = $this->entityManager->getRepository(RecipeProduct::class)->find($id);
         if (!$recipeProduct) {
             return new JsonResponse('', Response::HTTP_NOT_FOUND);
         }
-        $updatedRecipeProduct = $this->serializer->deserialize($requestContent, RecipeProduct::class, 'json');
+        $updatedRecipeProduct = $this->serializer->deserialize($validJson, RecipeProduct::class, 'json');
         $updatedRecipeProduct = $entityUpdaterService->update($recipeProduct, $updatedRecipeProduct);
 
         $errors = $validator->validate($updatedRecipeProduct);
